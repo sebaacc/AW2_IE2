@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const pool = require('../db/conexion');
 
 let jugadores = [
   { id: 1, nombre: 'Juan Román Riquelme', club: 'Boca', esLeyenda: true },
@@ -10,9 +11,25 @@ let jugadores = [
 ];
 let nextId = 6;
 
-router.get('/', (req, res) => {
-  res.json(jugadores);
+// FUNCIONALIDAD: Listar todos los jugadores
+
+router.get('/', async (req, res) => {
+  try {
+    let query  = 'SELECT * FROM jugadores';
+    let params = [];
+
+    if (req.query.buscar) {
+      query  = 'SELECT * FROM jugadores WHERE nombre ILIKE $1';
+      params = [`%${req.query.buscar}%`];
+    }
+
+    const resultado = await pool.query(query, params);
+    res.json(resultado.rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
+
 
 // FUNCIONALIDAD: Buscar por ID
 router.get('/:id', (req, res) => {
