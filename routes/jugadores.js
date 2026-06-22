@@ -1,25 +1,28 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const pool = require('../db/conexion');
+const pool = require("../db/conexion");
+const { verificarToken } = require("../middleware/auth");
 
+
+/*
 let jugadores = [
-  { id: 1, nombre: 'Juan Román Riquelme', club: 'Boca', esLeyenda: true },
-  { id: 2, nombre: 'Enzo Francescoli', club: 'River', esLeyenda: true },
-  { id: 3, nombre: 'Diego Milito', club: 'Racing', esLeyenda: true },
-  { id: 4, nombre: 'Martín Palermo', club: 'Boca', esLeyenda: true },
-  { id: 5, nombre: 'Lisandro López', club: 'Racing', esLeyenda: false },
+  { id: 1, nombre: "Juan Román Riquelme", club: "Boca", esLeyenda: true },
+  { id: 2, nombre: "Enzo Francescoli", club: "River", esLeyenda: true },
+  { id: 3, nombre: "Diego Milito", club: "Racing", esLeyenda: true },
+  { id: 4, nombre: "Martín Palermo", club: "Boca", esLeyenda: true },
+  { id: 5, nombre: "Lisandro López", club: "Racing", esLeyenda: false },
 ];
 let nextId = 6;
-
+*/
 // FUNCIONALIDAD: Listar todos los jugadores
 
-router.get('/', async (req, res) => {
+router.get("/", async (req, res) => {
   try {
-    let query  = 'SELECT * FROM jugadores';
+    let query = "SELECT * FROM jugadores";
     let params = [];
 
     if (req.query.buscar) {
-      query  = 'SELECT * FROM jugadores WHERE nombre ILIKE $1';
+      query = "SELECT * FROM jugadores WHERE nombre ILIKE $1";
       params = [`%${req.query.buscar}%`];
     }
 
@@ -30,46 +33,54 @@ router.get('/', async (req, res) => {
   }
 });
 
-
 // FUNCIONALIDAD: Buscar por ID
-router.get('/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const jugador = jugadores.find(j => j.id === id);
-
-  if (!jugador) {
-    return res.status(404).json({ error: `Jugador con ID ${id} no encontrado` });
+router.get("/:id", async (req, res) => {
+  try {
+    const resultado = await pool.query(
+      "SELECT * FROM jugadores WHERE id = $1",
+      [req.params.id],
+    );
+    if (resultado.rows.length === 0)
+      return res.status(404).json({ error: "Jugador no encontrado" });
+    res.json(resultado.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-  res.json(jugador);
 });
 
-// FUNCIONALIDAD: Crear un nuevo jugador 
-router.post('/', (req, res) => {
-  const { nombre, club, esLeyenda } = req.body;
+// FUNCIONALIDAD: Crear un nuevo jugador
 
-  if (!nombre || !club) {
-    return res.status(400).json({ error: 'Nombre y club son obligatorios' });
+router.post("/", verificarToken, async (req, res) => {
+  try {
+    const { nombre, club, esLeyenda } = req.body;
+    if (!nombre || !club)
+      return res.status(400).json({ error: "Faltan campos" });
+    const resultado = await pool.query(
+      "INSERT INTO jugadores (nombre, club, esLeyenda) VALUES ($1,$2,$3) RETURNING *",
+      [nombre, club, esLeyenda || false],
+    );
+    res.status(201).json(resultado.rows[0]);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  const nuevo = { id: nextId++, nombre, club, esLeyenda: esLeyenda || false };
-  jugadores.push(nuevo);
-  res.status(201).json(nuevo);
 });
 
 // FUNCIONALIDAD: Eliminar (DELETE)
-router.delete('/:id', (req, res) => {
-  const id = Number(req.params.id);
-  const existe = jugadores.some(j => j.id === id);
-
-    //Verificamos si existe antes de intentar borrar
-  if (!existe) {
-    return res.status(404).json({ error: `Jugador con ID ${id} no encontrado` });
+router.delete("/:id", verificarToken, async (req, res) => {
+  try {
+    const existe = await pool.query("SELECT * FROM jugadores WHERE id = $1", [
+      req.params.id,
+    ]);
+    if (existe.rows.length === 0)
+      return res.status(404).json({ error: "Jugador no encontrado" });
+    res.json(resultado.rows[0]);
+    if (existe.rows.length > 0) {
+      await pool.query("DELETE FROM jugadores WHERE id = $1", [req.params.id]);
+      res.json({ message: "Jugador eliminado" });
+    }
+  } catch (err) {
+    res.status(500).json({ error: err.message });
   }
-
-  // Filtramos la lista para quitar al jugador
-  jugadores = jugadores.filter(j => j.id !== id);
-  
-  // 204 indica éxito sin contenido en la respuesta
-  res.status(204).send();
 });
 
 module.exports = router;

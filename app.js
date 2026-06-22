@@ -1,6 +1,9 @@
 const express = require('express');
 const app = express();
+const authRoutes = require('./routes/auth');
 const jugadoresRouter = require('./routes/jugadores');
+
+app.use('/auth', authRoutes);
 
 app.use(express.json());
 
