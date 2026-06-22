@@ -3,19 +3,6 @@ const router = express.Router();
 const pool = require("../db/conexion");
 const { verificarToken } = require("../middleware/auth");
 
-
-/*
-let jugadores = [
-  { id: 1, nombre: "Juan Román Riquelme", club: "Boca", esLeyenda: true },
-  { id: 2, nombre: "Enzo Francescoli", club: "River", esLeyenda: true },
-  { id: 3, nombre: "Diego Milito", club: "Racing", esLeyenda: true },
-  { id: 4, nombre: "Martín Palermo", club: "Boca", esLeyenda: true },
-  { id: 5, nombre: "Lisandro López", club: "Racing", esLeyenda: false },
-];
-let nextId = 6;
-*/
-// FUNCIONALIDAD: Listar todos los jugadores
-
 router.get("/", async (req, res) => {
   try {
     let query = "SELECT * FROM jugadores";
@@ -52,12 +39,12 @@ router.get("/:id", async (req, res) => {
 
 router.post("/", verificarToken, async (req, res) => {
   try {
-    const { nombre, club, esLeyenda } = req.body;
+    const { nombre, club, es_leyenda } = req.body;
     if (!nombre || !club)
       return res.status(400).json({ error: "Faltan campos" });
     const resultado = await pool.query(
-      "INSERT INTO jugadores (nombre, club, esLeyenda) VALUES ($1,$2,$3) RETURNING *",
-      [nombre, club, esLeyenda || false],
+      "INSERT INTO jugadores (nombre, club, es_leyenda) VALUES ($1,$2,$3) RETURNING *",
+      [nombre, club, es_leyenda || false],
     );
     res.status(201).json(resultado.rows[0]);
   } catch (err) {
@@ -68,16 +55,24 @@ router.post("/", verificarToken, async (req, res) => {
 // FUNCIONALIDAD: Eliminar (DELETE)
 router.delete("/:id", verificarToken, async (req, res) => {
   try {
+    const { id } = req.params;
     const existe = await pool.query("SELECT * FROM jugadores WHERE id = $1", [
-      req.params.id,
+      id,
     ]);
-    if (existe.rows.length === 0)
+
+    if (existe.rows.length === 0) {
       return res.status(404).json({ error: "Jugador no encontrado" });
-    res.json(resultado.rows[0]);
-    if (existe.rows.length > 0) {
-      await pool.query("DELETE FROM jugadores WHERE id = $1", [req.params.id]);
-      res.json({ message: "Jugador eliminado" });
     }
+
+    const jugadorEliminado = existe.rows[0]; // guardamos el jugador eliminado para devolverlo en la respuesta
+
+    // Si existe, lo borramos
+    await pool.query("DELETE FROM jugadores WHERE id = $1", [id]);
+
+    res.json({
+      message: "Jugador eliminado con éxito",
+      jugador: jugadorEliminado,
+    });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

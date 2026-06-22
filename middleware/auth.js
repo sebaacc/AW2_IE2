@@ -1,3 +1,5 @@
+const jwt = require('jsonwebtoken');
+
 function verificarToken(req, res, next) {
   const authHeader = req.headers['authorization'];
 
@@ -12,6 +14,7 @@ function verificarToken(req, res, next) {
     req.usuario = payload; // disponible en el handler
     next();
   } catch (err) {
+    console.error('Error exacto de JWT:', err.message);
     return res.status(401).json({ error: 'Token inválido o expirado' });
   }
 }

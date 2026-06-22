@@ -1,16 +1,19 @@
+require('dotenv').config();
 const express = require('express');
 const app = express();
 const authRoutes = require('./routes/auth');
 const jugadoresRouter = require('./routes/jugadores');
 
-app.use('/auth', authRoutes);
-
+// 1. Middlewares globales indispensables primero.
 app.use(express.json());
 
-// Registro del router
-app.use('/', jugadoresRouter);
+// 2. Rutas de autenticación.
+app.use('/auth', authRoutes);
 
-// 4. Error 404 global
+// 3. Rutas de jugadores.
+app.use('/jugadores', jugadoresRouter);
+
+// 4. Error 404 global al final.
 app.use((req, res) => {
   res.status(404).json({ error: 'Ruta no encontrada', ruta: req.url });
 });
