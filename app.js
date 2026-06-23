@@ -22,7 +22,13 @@ app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada", ruta: req.url });
 });
 
-// 5. Servidor escuchando en el puerto 3000.
-app.listen(3000, () => {
-  console.log("Servidor corriendo en http://localhost:3000");
-});
+// 5. Servidor escuchando en el puerto 3000 (en local).
+
+// app.listen(3000, () => {
+//   console.log("Servidor corriendo en http://localhost:3000");
+// });
+
+// Preparado para deploy en Render.
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log(`Puerto ${PORT}`));
+
