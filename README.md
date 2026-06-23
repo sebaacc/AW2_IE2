@@ -10,8 +10,7 @@ Tiene como objetivo evolucionar la API de Jugadores de Fútbol de la IE1 que rea
 Para instalar las librerías necesarias para correr la API:
 
 ```bash
-npm install express pg dotenv bcrypt jsonwebtoken
-npm install --save-dev nodemon
+npm install
 ```
 
 Para ejecutar el proyecto:
