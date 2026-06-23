@@ -14,6 +14,10 @@ router.get("/", async (req, res) => {
     }
 
     const resultado = await pool.query(query, params);
+    
+    if (resultado.rows.length === 0) {
+      return res.status(404).json({ mensaje: `No se encontró ningún jugador con el nombre ${req.query.buscar}`});
+    }
     res.json(resultado.rows);
   } catch (err) {
     res.status(500).json({ error: err.message });

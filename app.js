@@ -11,7 +11,7 @@ app.use(express.json());
 app.use('/auth', authRoutes);
 
 // 3. Rutas de jugadores.
-app.use('/jugadores', jugadoresRouter);
+app.use('/api/jugadores', jugadoresRouter);
 
 // 4. Error 404 global al final.
 app.use((req, res) => {
