@@ -13,6 +13,10 @@ app.use("/api/auth", authRoutes);
 // 3. Rutas de jugadores.
 app.use("/api/jugadores", jugadoresRouter);
 
+app.get("/", (req, res) => {
+  res.redirect("/api/jugadores"); //redirección a la ruta de jugadores
+});
+
 // 4. Error 404 global al final.
 app.use((req, res) => {
   res.status(404).json({ error: "Ruta no encontrada", ruta: req.url });
