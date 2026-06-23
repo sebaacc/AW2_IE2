@@ -1,5 +1,7 @@
 # Proyecto de IE2 de Aplicaciones Web 2
 
+[https://aw2-ie2.onrender.com - URL pública del proyecto en render](https://aw2-ie2.onrender.com)
+
 Parte práctica de la instancia evaluativa 2, de la materia Aplicaciones Web 2.  
 Tiene como objetivo evolucionar la API de Jugadores de Fútbol de la IE1 que realizamos anterioremente, integrando una base de datos real y un sistema de autenticación. El proyecto muestra que los datos persisten entre reinicios del servidor y que las rutas de creación y eliminación de jugadores solo son accesibles por usuarios autenticados.
 
@@ -15,7 +17,7 @@ npm install --save-dev nodemon
 Para ejecutar el proyecto:
 
 ```bash
-npx nodemon app.js
+npm run dev
 ```
 
 Para detener:
