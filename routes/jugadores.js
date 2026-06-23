@@ -3,6 +3,7 @@ const router = express.Router();
 const pool = require("../db/conexion");
 const { verificarToken } = require("../middleware/auth");
 
+// Funcionalidad: Buscar todos los jugadores o por nombre
 router.get("/", async (req, res) => {
   try {
     let query = "SELECT * FROM jugadores";
@@ -14,9 +15,13 @@ router.get("/", async (req, res) => {
     }
 
     const resultado = await pool.query(query, params);
-    
+
     if (resultado.rows.length === 0) {
-      return res.status(404).json({ mensaje: `No se encontró ningún jugador con el nombre ${req.query.buscar}`});
+      return res
+        .status(404)
+        .json({
+          mensaje: `No se encontró ningún jugador con el nombre ${req.query.buscar}`,
+        });
     }
     res.json(resultado.rows);
   } catch (err) {
@@ -24,7 +29,7 @@ router.get("/", async (req, res) => {
   }
 });
 
-// FUNCIONALIDAD: Buscar por ID
+// Funcionalidad: Buscar por ID
 router.get("/:id", async (req, res) => {
   try {
     const resultado = await pool.query(
@@ -39,7 +44,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// FUNCIONALIDAD: Crear un nuevo jugador
+// Funcionalidad: Crear un nuevo jugador
 
 router.post("/", verificarToken, async (req, res) => {
   try {
@@ -56,7 +61,7 @@ router.post("/", verificarToken, async (req, res) => {
   }
 });
 
-// FUNCIONALIDAD: Eliminar (DELETE)
+// Funcionalidad: Eliminar (DELETE)
 router.delete("/:id", verificarToken, async (req, res) => {
   try {
     const { id } = req.params;

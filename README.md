@@ -1,41 +1,78 @@
 # Proyecto de IE2 de Aplicaciones Web 2
+
 Parte práctica de la instancia evaluativa 2, de la materia Aplicaciones Web 2.  
-Tiene como objetivo evolucionar la API de Jugadores de fútbol de la IE1 que realizamos anterioremente, integrando una base de datos real y un sistema de autenticación. El proyecto muestra que los datos persisten entre reinicios del servidor y que ciertas rutas solo son pueden ser accesibles por usuarios autenticados.
+Tiene como objetivo evolucionar la API de Jugadores de Fútbol de la IE1 que realizamos anterioremente, integrando una base de datos real y un sistema de autenticación. El proyecto muestra que los datos persisten entre reinicios del servidor y que las rutas de creación y eliminación de jugadores solo son accesibles por usuarios autenticados.
 
 ## Instrucciones de ejecución (versión de Node.js, comandos para instalar y correr).
-Para instalar las librerías necesarias para correr la API:  
+
+Para instalar las librerías necesarias para correr la API:
+
 ```bash
-npm install express pg dotenv bcrypt jsonwebtoken  
-npm install --save-dev nodemon  
+npm install express pg dotenv bcrypt jsonwebtoken
+npm install --save-dev nodemon
 ```
-Para ejecutar el proyecto:  
+
+Para ejecutar el proyecto:
+
 ```bash
-npx nodemon app.js  
+npx nodemon app.js
 ```
-Para detener:  
+
+Para detener:
+
 ```bash
-Ctrl + C  
+Ctrl + C
 ```
 
 ## Estructura del proyecto.
+
 ```bash
-mi-api/
-├── app.js                  ← Punto de entrada
-├── .env                    ← DATABASE_URL y JWT_SECRET (están en .env.example)
-├── .gitignore              ← node_modules y .env
+api-de-jugadores-de-futbol/
+├── app.js
+├── package.json
+├── package-lock.json
+├── .env                    ← DATABASE_URL y JWT_SECRET (NO va a GitHub)
+├── .env.example            ← igual que .env pero sí va al repositorio
+├── .gitignore              ← node_modules .env
 ├── db/
-│   └── conexion.js         ← Pool de pg con ssl para Neon
+│ └── conexion.js           ← Pool de pg con ssl
 ├── middleware/
-│   └── auth.js             ← Verificar JWT
+│ └── auth.js               ← Verificar JWT
 └── routes/
-    ├── jugadores.js        ← CRUD con SQL
+    ├── jugadores.js        ← Rutas del recurso con SQL
     └── auth.js             ← Register y login
+
 ```
+
 ## Integrantes y rol de cada uno.
-Sebastián Alejo, Markoja - Programador Backend y Testing de la API. 
+
+Sebastián Alejo, Markoja - Programador Backend y Testing de la API.
 
 ## Desafíos encontrados.
 
+```js
+module.exports = { verificarToken };
+```
+
+- No lo estaba exportando desde el auth de middleware, y tardé un buen rato en darme cuenta.
+
+---
+
+- Dentro de la carpeta `routes/` tenía el login y register dentro de `jugadores.js` para el manejo de usuarios y credenciales, y lo moví a donde correspondía, en `auth.js`.
+
+---
+
+- Antes tenía montado el jugadoresRouter en la ruta raíz `/`, lo cual me llevó a la confusión y choques entre rutas varias veces, así que le agregué el prefijo `api/jugadores`.
+
+---
+
+- El servidor me decía `"error exacto de JWT: jwt is not defined"`.
+  El error jwt is not defined significa que dentro de el archivo `middleware/auth.js` estaba intentando usar el objeto jwt (en la línea `jwt.verify(...))`, pero olvidé importarlo arriba de todo. Con ia lo pude identificar y resolver.
+
+---
+
+- Al probar la ruta de creación de jugador con método POST en Thunder Client, tenía un error en nombre del campo "esLeyenda" y no me daba cuenta, ya que lo había escrito como "es_leyenda" en la BD de Neon.
 
 ## Conversaciones con IA y herramientas externas
+
 [Chat con Gemini](https://gemini.google.com/share/6a6c4718e51d)
